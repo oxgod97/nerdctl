@@ -381,6 +381,28 @@ func (gc *Command) wrap() error {
 
 func (gc *Command) buildCommand(ctx context.Context) *exec.Cmd {
 	// Build arguments and binary.
+	validInput := regexp.MustCompile(`^[a-zA-Z0-9_\-\./\\]+$`)
+	if !validInput.MatchString(gc.Binary) {
+		return nil
+	}
+	for _, arg := range gc.Args {
+		if !validInput.MatchString(arg) {
+			return nil
+		}
+	}
+	if gc.WrapBinary != "" && !validInput.MatchString(gc.WrapBinary) {
+		return nil
+	}
+	for _, arg := range gc.WrapArgs {
+		if !validInput.MatchString(arg) {
+			return nil
+		}
+	}
+	for _, arg := range gc.PrependArgs {
+		if !validInput.MatchString(arg) {
+			return nil
+		}
+	}
 	args := gc.Args
 	if gc.PrependArgs != nil {
 		args = append(gc.PrependArgs, args...)
