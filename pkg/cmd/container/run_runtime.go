@@ -18,7 +18,9 @@ package container
 
 import (
 	"context"
+	"fmt"
 	"os/exec"
+	"regexp"
 	"strings"
 
 	"github.com/opencontainers/runtime-spec/specs-go"
@@ -52,6 +54,10 @@ func generateRuntimeCOpts(cgroupManager, runtimeStr string) ([]containerd.NewCon
 		} else {
 			// runtimeStr may be a runc binary - check that it exists
 			// if it does not, treat it as a runtime
+			validRuntime := regexp.MustCompile(`^[a-zA-Z0-9_\-\./\\]+$`)
+			if !validRuntime.MatchString(runtimeStr) {
+				return nil, fmt.Errorf("invalid runtime input")
+			}
 			ex, err := exec.LookPath(runtimeStr)
 			if err != nil {
 				runtime = runtimeStr
