@@ -72,6 +72,9 @@ func ReplaceOrAppendEnvValues(defaults, overrides []string) []string {
 func parseEnvVars(paths []string) ([]string, error) {
 	vars := make([]string, 0)
 	for _, path := range paths {
+		if strings.Contains(path, "../") || strings.Contains(path, "..\\") {
+			return nil, fmt.Errorf("invalid file path")
+		}
 		f, err := os.Open(path)
 		if err != nil {
 			return nil, fmt.Errorf("failed to open env file %s: %w", path, err)
